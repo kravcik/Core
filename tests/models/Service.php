@@ -1,6 +1,6 @@
 <?php
 
-class Service extends Nette\Object
+class Service
 {
     /* 
      * @var Nette\Database\Context

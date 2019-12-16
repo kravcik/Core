@@ -90,11 +90,22 @@ class RepositoryCaseTest extends \Tester\TestCase
         */
         $remove = $repository->remove($loadedEntity);
 
-        Assert::same(TRUE, $remove);
+        Assert::same(true, $remove);
 
         $deletedEntity = $repository->getBy(['id' => $id]);
 
-        Assert::same(NULL, $deletedEntity);
+        Assert::same(null, $deletedEntity);
+
+        /**
+        * TEST: Remove entity by ID
+        */
+        $removeById = $repository->removeByID(1);
+
+        Assert::same(true, $removeById);
+
+        $deletedEntity = $repository->getByID(1);
+
+        Assert::same(null, $deletedEntity);
     }
 }
 

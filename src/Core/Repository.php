@@ -147,17 +147,29 @@ class Repository extends \YetORM\Repository
             return $record->id;
         });
     }
-    
+
     /**
      * Remove single instance from database
-     * 
+     *
      * @param \Core\Entity $entity
-     * 
+     *
      * @return bool
      */
     public function remove(\Core\Entity $entity)
     {
         return parent::delete($entity);
+    }
+
+    /**
+     * Remove single instance from database by ID
+     *
+     * @param int $id
+     *
+     * @return bool
+     */
+    public function removeByID($id)
+    {
+        return (bool) $this->getTable()->wherePrimary($id)->delete();
     }
     
     /**

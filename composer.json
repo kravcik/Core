@@ -11,8 +11,8 @@
 
     "require": {
         "php": ">=7.1",
-        "nette/utils": "^3",
-        "nette/database": "^3",        
+        "nette/utils": "^2.4",
+        "nette/database": "^2.4",
         "uestla/yetORM": "^10"
     },
 
