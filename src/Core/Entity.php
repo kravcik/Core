@@ -87,7 +87,7 @@ abstract class Entity extends \YetORM\Entity
         {
             $functionName = 'set' . ucfirst($name);
 
-            if(isset($values[$name]) && !$property->isReadonly())
+            if(!$property->isReadonly())
             {
                 /**
                  * Entity has special set function? Use it instead of simple set
@@ -99,27 +99,32 @@ abstract class Entity extends \YetORM\Entity
                 else
                 {
                     /**
-                     * Set NULL for nullable properties
+                     * Set NULL for nullable properties without value
+                     * Skip if property not set and is not nullable
                      */
-                    if($property->isNullable() && empty($values[$name]))
+                    if(!isset($values[$name]) && $property->isNullable() && empty($values[$name]))
                     {
-                        $values[$name] = NULL;
+                        $values[$name] = null;
                     }
-
-                    /**
-                     * Convert strings to int
-                     */
-                    if($property->getType() == 'integer' && !empty($values[$name]))
+                    elseif(!isset($values[$name]) && !$property->isNullable())
                     {
-                        $values[$name] = intval($values[$name]);
+                        continue;
                     }
 
                     /**
                      * Convert bool to int
                      */
-                    elseif($property->getType() == 'integer' && is_bool($values[$name]))
+                    if($property->getType() == 'int' && is_bool($values[$name]))
                     {
                         $values[$name] = $values[$name] ? 1 : 0;
+                    }
+
+                    /**
+                     * Convert strings to int
+                     */
+                    elseif($property->getType() == 'int' && !empty($values[$name]))
+                    {
+                        $values[$name] = intval($values[$name]);
                     }
 
                     /**

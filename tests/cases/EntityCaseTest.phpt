@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 require_once __DIR__ . '/../boostrap.php';
 
@@ -10,7 +10,7 @@ use Tester\Assert;
 class EntityCaseTest extends \Tester\TestCase
 {
     protected $Service;
-    
+
     public function setUp()
     {
         $this->Service = new Service();
@@ -25,11 +25,11 @@ class EntityCaseTest extends \Tester\TestCase
         $zooEntity = new ZooEntity;
         $zooEntity->name = 'Zoo Plzeň';
         $zooEntity->motto = NULL;
-        
+
         Assert::same(NULL, $zooEntity->motto);
     }
-    
-    /** 
+
+    /**
      * Entity to Array
      */
     public function testEntityToArray()
@@ -39,15 +39,18 @@ class EntityCaseTest extends \Tester\TestCase
         $animalEntity->weight = 15;
         $animalEntity->birth = new \Nette\Utils\DateTime('2015-01-01 12:00:00');
         $animalEntity->parameters = ['color' => 'brown', 'ears' => 2, 'eyes' => 1];
+        $animalEntity->death = null;
+        $animalEntity->vaccinated = 1;
+        $animalEntity->height = 50;
 
         $array = $animalEntity->toArray(['id']);
-        
+
         Assert::true(is_array($array));
     }
 
     /**
      * Test if int 0 can be transform thruw array conversion func
-     * 
+     *
      */
     public function testEntityToArrayInteger()
     {
@@ -56,13 +59,16 @@ class EntityCaseTest extends \Tester\TestCase
         $animalEntity->weight = 0;
         $animalEntity->birth = new \Nette\Utils\DateTime('2015-01-01 12:00:00');
         $animalEntity->parameters = ['color' => 'brown', 'ears' => 2, 'eyes' => 1];
-        
+        $animalEntity->death = null;
+        $animalEntity->vaccinated = 1;
+        $animalEntity->height = 50;
+
         $array = $animalEntity->toArray(['id']);
-        
+
         Assert::same(0, $array['weight']);
     }
-    
-    /** 
+
+    /**
      * Entity filled from Array
      */
     public function testEntityFromArray()
@@ -75,16 +81,34 @@ class EntityCaseTest extends \Tester\TestCase
                 'color' => 'brown',
                 'ears' => 2,
                 'eyes' => 1
-            ]            
+            ],
+            'death' => null,
+            'height' => '50',
+            'vaccinated' => true
         ];
-        
+
         $kangarooEntity = new AnimalEntity();
         $kangarooEntity->fillFromArray($array);
 
-        Assert::same(15, $kangarooEntity->weight);        
+        Assert::same(15, $kangarooEntity->weight);
+
+        /**
+         * TEST: bool to int conversion
+         */
+        Assert::same(1, $kangarooEntity->vaccinated);
+
+        /**
+         * TEST: string to int conversion
+         */
+        Assert::same(50, $kangarooEntity->height);
+
+        /**
+         * TEST: Filling null values from array
+         */
+        Assert::same(null, $kangarooEntity->death);
     }
-    
-    /** 
+
+    /**
      * Entity save to database
      */
     public function testEntitySaveToDatabase()
@@ -94,29 +118,32 @@ class EntityCaseTest extends \Tester\TestCase
         $animalEntity->weight = 15;
         $animalEntity->birth = new \Nette\Utils\DateTime('2015-01-01 12:00:00');
         $animalEntity->parameters = ['color' => 'brown', 'ears' => 2, 'eyes' => 1];
-        
+        $animalEntity->death = null;
+        $animalEntity->vaccinated = 1;
+        $animalEntity->height = 50;
+
         $repository = new AnimalRepository($this->Service->database);
         $repository->save($animalEntity);
 
         /* @var $loadedEntity AnimalEntity */
         $loadedEntity = $repository->getBy(['name' => 'Kangaroo']);
-        
-        /** 
+
+        /**
          * TEST: save entity to database
          */
-        Assert::true($loadedEntity instanceof \Core\Entity);            
-        
-        /** 
+        Assert::true($loadedEntity instanceof \Core\Entity);
+
+        /**
          * TEST: save & load it back like array via JSON
          */
-        Assert::same(['color' => 'brown', 'ears' => 2, 'eyes' => 1], $loadedEntity->parameters);               
-        
-        /** 
+        Assert::same(['color' => 'brown', 'ears' => 2, 'eyes' => 1], $loadedEntity->parameters);
+
+        /**
          * TEST: save & load \Nette\Utils\DateTime
-         */    
+         */
         Assert::true($loadedEntity->birth instanceof \Nette\Utils\DateTime);
 
-        /** 
+        /**
          * TEST: check right type of date
          */
         Assert::same($loadedEntity->birth->format('Y'), '2015');
